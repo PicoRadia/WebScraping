@@ -1,0 +1,18 @@
+'''Dino Ipsum Api (free api)'''
+'''Import BeautifulSoup to manipulate the html'''
+
+import requests
+
+url =  "https://alexnormand-dino-ipsum.p.rapidapi.com/"
+
+querystring = {"format":"html","words":"30","paragraphs":"30"} #define what you want here
+
+
+headers = {
+    'x-rapidapi-host': "alexnormand-dino-ipsum.p.rapidapi.com",
+    'x-rapidapi-key': "e122545cccmsh4454b8c76a1d5e1p1a3846jsn7a29bd5ae625"
+    }
+
+response = requests.request("GET", url, headers=headers, params=querystring)
+
+print(response.text)
