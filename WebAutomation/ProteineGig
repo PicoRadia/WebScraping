@@ -25,18 +25,12 @@ submit.click()
 
 
 ------------------------------------------------Third Page--------------------------------------------------------- 
-
 from selenium import webdriver
-from bs4 import BeautifulSoup
 
-driver= webdriver.Firefox()
-driver.get('http://www.cbs.dtu.dk/cgi-bin/webface2.fcgi?jobid=5EB65B35000060AD37A0D63B&wait=20')
+driver = webdriver.Chrome()
+driver.get('http://www.cbs.dtu.dk/cgi-bin/webface2.fcgi?jobid=5EB65B35000060AD37A0D63B')
 
-soup = BeautifulSoup(driver.page_source)
-elem = soup.select('#bs-example-navbar-collapse-1 > ul.nav.navbar-nav.navbar-right.example-label.download-btn > div > a')
+button = driver.find_element_by_css_selector('#bs-example-navbar-collapse-1 > ul.nav.navbar-nav.navbar-right.example-label.download-btn > div > a')
+button.click()
 
-root_link = "http://www.cbs.dtu.dk/"
-part_link= elem[0].get('href')
-link= root_link + part_link
 
-driver.get(link)
