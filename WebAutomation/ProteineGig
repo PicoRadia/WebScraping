@@ -1,0 +1,24 @@
+from selenium import webdriver
+
+
+#first page
+driver = webdriver.Firefox()
+driver.get("http://www.cbs.dtu.dk/services/TCRpMHCmodels/index.php")
+
+text = driver.find_element_by_name("fasta")
+
+
+with open("lol",'r') as f:
+    for line in f.readlines() : 
+        text.send_keys(line)
+             
+
+modeller_key = driver.find_element_by_name("modellerkey")
+modeller_key.send_keys("******") #enter client code here
+
+submit = driver.find_element_by_xpath("/html/body/div/div[2]/div[2]/div/form/div[4]/div/input")
+submit.click()
+
+
+
+"""Proxy problems : YOUR SITE HAS BEEN BANNED : This is usually due to abusive behaviour from your site, or someone using the same proxy server as you, or if we believe your site is a webcrawler. """"
