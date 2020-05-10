@@ -1,0 +1,13 @@
+from selenium import webdriver
+
+driver = webdriver.Firefox()
+driver.get("http://codepad.org/")
+
+text= driver.find_element_by_id("textarea")
+text.send_keys("print('Hello world')")
+
+radio_button =driver.find_elements_by_xpath("//input [@name = 'lang' and @value= 'Python' ]")[0]
+radio_button.click()
+
+submit=driver.find_element_by_xpath("/html/body/div/center/table/tbody/tr/td[1]/div/form/table/tbody/tr[3]/td/table/tbody/tr/td/div/table/tbody/tr/td[3]/button")
+submit.click()
