@@ -1,0 +1,9 @@
+from selenium import webdriver
+
+PROXY = "12.345.678.910:8080"
+
+chrome_options = WebDriverWait.ChromeOptions()
+chrome_options.add_argument('--proxy-server=%s' % PROXY)
+
+chrome = webdriver.Chrome(chrome_options=chrome_options)
+chrome.get("https://www.google.com")
