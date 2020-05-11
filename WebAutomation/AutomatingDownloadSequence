@@ -196,7 +196,93 @@ else :
 
 
                 
+-----------------------final(ish) version ---------------
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options 
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+import time
 
+number_of_files = input("Please Enter the number of files you want to download : \t")
+
+
+start_time = time.time() 
+chrome_options = Options()
+chrome_options.add_experimental_option("prefs", {
+    "download.default_directory": "/home/radia/Bureau/lo",
+    "download.prompt_for_download": False,
+})#the path where files will be downloaded
+
+chrome_options.add_argument("--headless")
+driver = webdriver.Chrome(chrome_options=chrome_options)
+
+driver.command_executor._commands["send_command"] = ("POST", '/session/$sessionId/chromium/send_command')
+params = {'cmd': 'Page.setDownloadBehavior', 'params': {'behavior': 'allow', 'downloadPath': "/home/radia/Bureau/lo"}}
+command_result = driver.execute("send_command", params)
+i=0
+for i in range(number_of_files):
+    driver.get("http://www.cbs.dtu.dk/services/TCRpMHCmodels/index.php")
+
+    print("headless chrome initialized")
+
+    folder_name = '/home/radia/Bureau/fasta entry/' + '%d' %(i+1)
+    text = driver.find_element_by_name("fasta")
+    file_input = driver.find_element_by_css_selector('#uploadfile')
+    file_input.send_keys(folder_name)
+
+
+    print("file opened")   
+
+
+    modeller_key = driver.find_element_by_name("modellerkey")
+    modeller_key.send_keys("MODELIRANJE")
+
+    print("key entered")
+
+    #before clicking we need to test that the fasta file is correct
+    try : 
+        submit = driver.find_element_by_xpath("/html/body/div/div[2]/div[2]/div/form/div[4]/div/input")
+        submit.click()
+
+    except :
+        
+        print("you must input exactly four fasta entries")
+        driver.get("http://google.com")
+        print(driver.current_url)
+    else :
+    
+
+        print("switch to next page")
+        print("wait for download")
+
+        #second part
+        timeout = 300000000000000
+        try:
+            element_present = EC.presence_of_element_located((By.CSS_SELECTOR, '#bs-example-navbar-collapse-1 > ul.nav.navbar-nav.navbar-right.example-label.download-btn > div > a'))
+            WebDriverWait(driver, timeout).until(element_present)
+        except TimeoutException:
+            print("Timed out waiting for page to load")
+        finally:
+            print("Page loaded")
+
+
+        button = driver.find_element_by_css_selector('#bs-example-navbar-collapse-1')
+        button.click()
+
+        print("button clicked")
+        print("download completed")
+        stop_time = time.time()
+        dt = stop_time - start_time
+        print("the time needed for one download is : %f" %dt)
+        if(i+1<number_of_files):
+            print("next file \n")
+        if ( i == number_of_files + 1) : 
+            print("finished")
+
+
+                    
 
 
 
