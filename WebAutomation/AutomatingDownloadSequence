@@ -56,4 +56,73 @@ button = driver.find_element_by_css_selector('#bs-example-navbar-collapse-1 > ul
 button.click()
 print("khi")
 
+-----------------------------ALL of the parts combined(without loop) -----------------
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options 
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+
+
+chrome_options = Options()
+chrome_options.add_experimental_option("prefs", {
+  "download.default_directory": "/home/radia/Bureau/lo",
+  "download.prompt_for_download": False,
+})#the path where files will be downloaded
+
+chrome_options.add_argument("--headless")
+driver = webdriver.Chrome(chrome_options=chrome_options)
+
+driver.command_executor._commands["send_command"] = ("POST", '/session/$sessionId/chromium/send_command')
+params = {'cmd': 'Page.setDownloadBehavior', 'params': {'behavior': 'allow', 'downloadPath': "/home/radia/Bureau/lo"}}
+command_result = driver.execute("send_command", params)
+
+driver.get("http://www.cbs.dtu.dk/services/TCRpMHCmodels/index.php")
+
+print("headless chrome initialized")
+
+text = driver.find_element_by_name("fasta")
+
+
+with open("/home/radia/Bureau/lol",'r') as f:
+    for line in f.readlines() : 
+        text.send_keys(line)
+             
+print("file opened")             
+
+modeller_key = driver.find_element_by_name("modellerkey")
+modeller_key.send_keys("MODELIRANJE")
+
+print("key entered")
+
+submit = driver.find_element_by_xpath("/html/body/div/div[2]/div[2]/div/form/div[4]/div/input")
+submit.click()
+
+print("switch to next page")
+print("wait for download")
+
+#second part
+timeout = 30000
+try:
+    element_present = EC.presence_of_element_located((By.CSS_SELECTOR, '#bs-example-navbar-collapse-1 > ul.nav.navbar-nav.navbar-right.example-label.download-btn > div > a'))
+    WebDriverWait(driver, timeout).until(element_present)
+except TimeoutException:
+    print("Timed out waiting for page to load")
+finally:
+    print("Page loaded")
+
+
+button = driver.find_element_by_css_selector('#bs-example-navbar-collapse-1 > ul.nav.navbar-nav.navbar-right.example-label.download-btn > div > a')
+button.click()
+
+print("button clicked")
+print("download completed")
+
+
+             
+
+
+
+
 
