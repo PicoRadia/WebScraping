@@ -282,7 +282,98 @@ for i in range(number_of_files):
             print("finished")
 
 
-                    
+ ---------------------------------------------------------------------------------------------------------------------------------
+ from selenium import webdriver
+import settings
+from bs4 import BeautifulSoup
+import requests
+from selenium.webdriver.firefox.options import Options
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+import os
+
+'''
+file_content =[]
+dir = settings.absolute_path_to_data_entries
+for file in os.path.listdir( dir ):
+    if file.endswith( ".fasta" ):
+    try:
+      with open( os.path.join( dir, file ) ,"r") as fd:
+        file_content.append( fd.read )
+'''
+
+
+
+
+options = Options()
+options.headless = True
+driver = webdriver.Firefox(options=options)
+
+
+print("\n ******************************** STARTING ***************************************** \n")
+
+driver.get("http://www.cbs.dtu.dk/services/TCRpMHCmodels/index.php")
+
+print("headless chrome initialized")
+
+driver.find_element_by_link_text("Load Example").click()
+
+print("file opened")   
+
+modeller_key = driver.find_element_by_name("modellerkey")
+modeller_key.send_keys("MODELIRANJE")
+
+print("key entered")
+
+
+try : 
+        submit = driver.find_element_by_xpath("/html/body/div/div[2]/div[2]/div/form/div[4]/div/input")
+        submit.click()
+
+except :
+        
+        print("you must input exactly four fasta entries")
+        
+else :
+    
+
+        print("switch to next page")
+        print("wait for download")
+
+        #second part
+        timeout = 300000000
+        try:
+            element_present = EC.presence_of_element_located((By.CSS_SELECTOR, '#bs-example-navbar-collapse-1 > ul.nav.navbar-nav.navbar-right.example-label.download-btn > div > a'))
+            WebDriverWait(driver, timeout).until(element_present)
+
+           
+
+        except TimeoutException:
+            print("Timed out waiting for page to load")
+            driver.get("http://google.com")
+
+        finally:
+            var1 = driver.current_url
+            print(var1)
+            
+# *******************3rd page download ****************************
+var1 = driver.current_url
+links = driver.find_element_by_link_text('Download PDB File')
+url = links.get_attribute("href")
+print(url) #returns none
+r = requests.get(url)
+path_to_file = settings.absolute_path_to_data_results + 'poop.txt'
+with open(path_to_file, 'wb') as my_file:
+        my_file.write(r.content)
+        print("File downloaded")
+
+
+
+driver.quit()
+
+print("ok")
 
 
 
