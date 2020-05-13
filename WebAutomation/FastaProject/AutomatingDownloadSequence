@@ -38,7 +38,7 @@ while (len(onlyfiles) != 0):
 
     #modeller key
     modeller_key = driver.find_element_by_name("modellerkey")
-    modeller_key.send_keys("MODELIRANJE")
+    modeller_key.send_keys("**********")
     print("key entered")
 
     #submit key
