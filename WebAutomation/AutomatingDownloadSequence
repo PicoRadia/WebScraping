@@ -375,6 +375,76 @@ driver.quit()
 
 print("ok")
 
+------------------------------------stable version----------------------------------------
 
+from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
+import requests
+import settings
+import time
+import os
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+
+
+options = Options()
+options.headless = True
+driver = webdriver.Firefox(options=options)
+
+
+
+
+
+
+
+print("\n ******************************** STARTING ***************************************** \n")
+
+driver.get("http://www.cbs.dtu.dk/services/TCRpMHCmodels/index.php")
+
+print("headless chrome initialized")
+
+driver.find_element_by_link_text("Load Example").click()
+
+print("file opened")   
+
+modeller_key = driver.find_element_by_name("modellerkey")
+modeller_key.send_keys("MODELIRANJE")
+
+print("key entered")
+
+submit = driver.find_element_by_xpath("/html/body/div/div[2]/div[2]/div/form/div[4]/div/input")
+submit.click()
+print("switch to next page")
+print("wait for download")
+
+
+
+timeout = 300000000
+try:
+        element_present = EC.presence_of_element_located((By.CSS_SELECTOR, '#bs-example-navbar-collapse-1 > ul.nav.navbar-nav.navbar-right.example-label.download-btn > div > a'))
+        WebDriverWait(driver, timeout).until(element_present)
+           
+
+except TimeoutException:
+        print("Timed out waiting for page to load")
+        driver.get("http://google.com")
+else:
+        
+    links = driver.find_element_by_link_text('Download PDB File')
+    time.sleep(50)
+    url = links.get_attribute('href')
+
+    print(url)
+
+    r =requests.get(url)
+    path_to_file = settings.absolute_path_to_data_results + 'nini.pdb'
+    with open(path_to_file, 'wb') as my_file:
+            my_file.write(r.content)
+            print("File downloaded")
+
+    print("ok")
+driver.quit()
 
 
