@@ -1,450 +1,84 @@
 from selenium import webdriver
-
-
-#first page
-driver = webdriver.Firefox()
-driver.get("http://www.cbs.dtu.dk/services/TCRpMHCmodels/index.php")
-
-text = driver.find_element_by_name("fasta")
-
-
-with open("lol",'r') as f:
-    for line in f.readlines() : 
-        text.send_keys(line)
-             
-
-modeller_key = driver.find_element_by_name("modellerkey")
-modeller_key.send_keys("******") #enter client code here
-
-submit = driver.find_element_by_xpath("/html/body/div/div[2]/div[2]/div/form/div[4]/div/input")
-submit.click()
-
-
-
-"""Proxy problems : YOUR SITE HAS BEEN BANNED : This is usually due to abusive behaviour from your site, or someone using the same proxy server as you, or if we believe your site is a webcrawler. """"
-
-
-------------------------------------------------Third Page--------------------------------------------------------- 
-from selenium import webdriver
-
-driver = webdriver.Chrome()
-driver.get('http://www.cbs.dtu.dk/cgi-bin/webface2.fcgi?jobid=5EB65B35000060AD37A0D63B')
-
-button = driver.find_element_by_css_selector('#bs-example-navbar-collapse-1 > ul.nav.navbar-nav.navbar-right.example-label.download-btn > div > a')
-button.click()
-
-----------------------headless Chrome browserdownload ----------------------------------------------------------
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-
-chrome_options = Options()
-chrome_options.add_experimental_option("prefs", {
-  "download.default_directory": "/home/radia/Bureau/lo",
-  "download.prompt_for_download": False,
-})
-
-chrome_options.add_argument("--headless")
-driver = webdriver.Chrome(chrome_options=chrome_options)
-
-driver.command_executor._commands["send_command"] = ("POST", '/session/$sessionId/chromium/send_command')
-params = {'cmd': 'Page.setDownloadBehavior', 'params': {'behavior': 'allow', 'downloadPath': "/home/radia/Bureau/lo"}}
-command_result = driver.execute("send_command", params)
-
-driver.get('http://www.cbs.dtu.dk/cgi-bin/webface2.fcgi?jobid=5EB65B35000060AD37A0D63B')
-
-button = driver.find_element_by_css_selector('#bs-example-navbar-collapse-1 > ul.nav.navbar-nav.navbar-right.example-label.download-btn > div > a')
-button.click()
-print("khi")
-
------------------------------ALL of the parts combined(without loop) -----------------
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options 
-from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.firefox.options import Options
+import requests
+import settings
+import time
+import os
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-
-
-chrome_options = Options()
-chrome_options.add_experimental_option("prefs", {
-  "download.default_directory": "/home/radia/Bureau/lo",
-  "download.prompt_for_download": False,
-})#the path where files will be downloaded
-
-chrome_options.add_argument("--headless")
-driver = webdriver.Chrome(chrome_options=chrome_options)
-
-driver.command_executor._commands["send_command"] = ("POST", '/session/$sessionId/chromium/send_command')
-params = {'cmd': 'Page.setDownloadBehavior', 'params': {'behavior': 'allow', 'downloadPath': "/home/radia/Bureau/lo"}}
-command_result = driver.execute("send_command", params)
-
-driver.get("http://www.cbs.dtu.dk/services/TCRpMHCmodels/index.php")
-
-print("headless chrome initialized")
-
-text = driver.find_element_by_name("fasta")
-
-
-with open("/home/radia/Bureau/lol",'r') as f:
-    for line in f.readlines() : 
-        text.send_keys(line)
-             
-print("file opened")             
-
-modeller_key = driver.find_element_by_name("modellerkey")
-modeller_key.send_keys("MODELIRANJE")
-
-print("key entered")
-
-submit = driver.find_element_by_xpath("/html/body/div/div[2]/div[2]/div/form/div[4]/div/input")
-submit.click()
-
-print("switch to next page")
-print("wait for download")
-
-#second part
-timeout = 30000
-try:
-    element_present = EC.presence_of_element_located((By.CSS_SELECTOR, '#bs-example-navbar-collapse-1 > ul.nav.navbar-nav.navbar-right.example-label.download-btn > div > a'))
-    WebDriverWait(driver, timeout).until(element_present)
-except TimeoutException:
-    print("Timed out waiting for page to load")
-finally:
-    print("Page loaded")
-
-
-button = driver.find_element_by_css_selector('#bs-example-navbar-collapse-1 > ul.nav.navbar-nav.navbar-right.example-label.download-btn > div > a')
-button.click()
-
-print("button clicked")
-print("download completed")
-
-
---------------------Handling Exceptions ---------------------------------------
-#Exception : You must input exactly four fata entries
-
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options 
 from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
+from os import listdir
+from os.path import isfile, join
 
 
-chrome_options = Options()
-chrome_options.add_experimental_option("prefs", {
-  "download.default_directory": "/home/radia/Bureau/lo",
-  "download.prompt_for_download": False,
-})#the path where files will be downloaded
+options = Options()
+options.headless = True
+driver = webdriver.Firefox(options=options)
 
-chrome_options.add_argument("--headless")
-driver = webdriver.Chrome(chrome_options=chrome_options)
+onlyfiles = [f for f in listdir(settings.absolute_path_to_data_entries) if isfile(join(settings.absolute_path_to_data_entries, f))]
 
-driver.command_executor._commands["send_command"] = ("POST", '/session/$sessionId/chromium/send_command')
-params = {'cmd': 'Page.setDownloadBehavior', 'params': {'behavior': 'allow', 'downloadPath': "/home/radia/Bureau/lo"}}
-command_result = driver.execute("send_command", params)
 
-driver.get("http://www.cbs.dtu.dk/services/TCRpMHCmodels/index.php")
+while (len(onlyfiles) != 0):
+    file =  os.path.abspath("data entries/%s" %onlyfiles[0])
+    name = onlyfiles[0].split('.')[0] + '.pdb'
+    onlyfiles.pop(0)
+    print("\n ******************************** STARTING ***************************************** \n")
 
-print("headless chrome initialized")
+    driver.get("http://www.cbs.dtu.dk/services/TCRpMHCmodels/index.php")
+    print("headless chrome initialized")
 
-text = driver.find_element_by_name("fasta")
+    #fasta file input
+    text = driver.find_element_by_name("fasta")
+    file_input = driver.find_element_by_css_selector('#uploadfile')
+    file_input.send_keys(file)
+    print("file opened")   
 
-print("file opened")   
-with open("/home/radia/Bureau/fasta entry/lilo",'r') as f:
-    for line in f.readlines() : 
-        text.send_keys(line)
-print("fasta entered")
+    #modeller key
+    modeller_key = driver.find_element_by_name("modellerkey")
+    modeller_key.send_keys("MODELIRANJE")
+    print("key entered")
 
-modeller_key = driver.find_element_by_name("modellerkey")
-modeller_key.send_keys("MODELIRANJE")
-
-print("key entered")
-
-#before clicking we need to test that the fasta file is correct
-try : 
+    #submit click
     submit = driver.find_element_by_xpath("/html/body/div/div[2]/div[2]/div/form/div[4]/div/input")
     submit.click()
 
-except :
-    
-    print("you must input exactly four fasta entries")
-    driver.get("http://google.com")
-    print(driver.current_url)
-else :
-   
-
+    #next page
     print("switch to next page")
     print("wait for download")
 
-    #second part
-    timeout = 30000
+    #wait for download
+    timeout = 300000000
     try:
         element_present = EC.presence_of_element_located((By.CSS_SELECTOR, '#bs-example-navbar-collapse-1 > ul.nav.navbar-nav.navbar-right.example-label.download-btn > div > a'))
         WebDriverWait(driver, timeout).until(element_present)
+           
     except TimeoutException:
         print("Timed out waiting for page to load")
-    finally:
-        print("Page loaded")
-
-
-    button = driver.find_element_by_css_selector('#bs-example-navbar-collapse-')
-    button.click()
-
-    print("button clicked")
-    print("download completed")
-
-
-                
------------------------final(ish) version ---------------
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options 
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-import time
-
-number_of_files = input("Please Enter the number of files you want to download : \t")
-
-
-start_time = time.time() 
-chrome_options = Options()
-chrome_options.add_experimental_option("prefs", {
-    "download.default_directory": "/home/radia/Bureau/lo",
-    "download.prompt_for_download": False,
-})#the path where files will be downloaded
-
-chrome_options.add_argument("--headless")
-driver = webdriver.Chrome(chrome_options=chrome_options)
-
-driver.command_executor._commands["send_command"] = ("POST", '/session/$sessionId/chromium/send_command')
-params = {'cmd': 'Page.setDownloadBehavior', 'params': {'behavior': 'allow', 'downloadPath': "/home/radia/Bureau/lo"}}
-command_result = driver.execute("send_command", params)
-i=0
-for i in range(number_of_files):
-    driver.get("http://www.cbs.dtu.dk/services/TCRpMHCmodels/index.php")
-
-    print("headless chrome initialized")
-
-    folder_name = '/home/radia/Bureau/fasta entry/' + '%d' %(i+1)
-    text = driver.find_element_by_name("fasta")
-    file_input = driver.find_element_by_css_selector('#uploadfile')
-    file_input.send_keys(folder_name)
-
-
-    print("file opened")   
-
-
-    modeller_key = driver.find_element_by_name("modellerkey")
-    modeller_key.send_keys("MODELIRANJE")
-
-    print("key entered")
-
-    #before clicking we need to test that the fasta file is correct
-    try : 
-        submit = driver.find_element_by_xpath("/html/body/div/div[2]/div[2]/div/form/div[4]/div/input")
-        submit.click()
-
-    except :
-        
-        print("you must input exactly four fasta entries")
-        driver.get("http://google.com")
-        print(driver.current_url)
-    else :
-    
-
-        print("switch to next page")
-        print("wait for download")
-
-        #second part
-        timeout = 300000000000000
-        try:
-            element_present = EC.presence_of_element_located((By.CSS_SELECTOR, '#bs-example-navbar-collapse-1 > ul.nav.navbar-nav.navbar-right.example-label.download-btn > div > a'))
-            WebDriverWait(driver, timeout).until(element_present)
-        except TimeoutException:
-            print("Timed out waiting for page to load")
-        finally:
-            print("Page loaded")
-
-
-        button = driver.find_element_by_css_selector('#bs-example-navbar-collapse-1')
-        button.click()
-
-        print("button clicked")
-        print("download completed")
-        stop_time = time.time()
-        dt = stop_time - start_time
-        print("the time needed for one download is : %f" %dt)
-        if(i+1<number_of_files):
-            print("next file \n")
-        if ( i == number_of_files + 1) : 
-            print("finished")
-
-
- ---------------------------------------------------------------------------------------------------------------------------------
- from selenium import webdriver
-import settings
-from bs4 import BeautifulSoup
-import requests
-from selenium.webdriver.firefox.options import Options
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-import os
-
-'''
-file_content =[]
-dir = settings.absolute_path_to_data_entries
-for file in os.path.listdir( dir ):
-    if file.endswith( ".fasta" ):
-    try:
-      with open( os.path.join( dir, file ) ,"r") as fd:
-        file_content.append( fd.read )
-'''
-
-
-
-
-options = Options()
-options.headless = True
-driver = webdriver.Firefox(options=options)
-
-
-print("\n ******************************** STARTING ***************************************** \n")
-
-driver.get("http://www.cbs.dtu.dk/services/TCRpMHCmodels/index.php")
-
-print("headless chrome initialized")
-
-driver.find_element_by_link_text("Load Example").click()
-
-print("file opened")   
-
-modeller_key = driver.find_element_by_name("modellerkey")
-modeller_key.send_keys("MODELIRANJE")
-
-print("key entered")
-
-
-try : 
-        submit = driver.find_element_by_xpath("/html/body/div/div[2]/div[2]/div/form/div[4]/div/input")
-        submit.click()
-
-except :
-        
-        print("you must input exactly four fasta entries")
-        
-else :
-    
-
-        print("switch to next page")
-        print("wait for download")
-
-        #second part
-        timeout = 300000000
-        try:
-            element_present = EC.presence_of_element_located((By.CSS_SELECTOR, '#bs-example-navbar-collapse-1 > ul.nav.navbar-nav.navbar-right.example-label.download-btn > div > a'))
-            WebDriverWait(driver, timeout).until(element_present)
-
-           
-
-        except TimeoutException:
-            print("Timed out waiting for page to load")
-            driver.get("http://google.com")
-
-        finally:
-            var1 = driver.current_url
-            print(var1)
-            
-# *******************3rd page download ****************************
-var1 = driver.current_url
-links = driver.find_element_by_link_text('Download PDB File')
-url = links.get_attribute("href")
-print(url) #returns none
-r = requests.get(url)
-path_to_file = settings.absolute_path_to_data_results + 'poop.txt'
-with open(path_to_file, 'wb') as my_file:
-        my_file.write(r.content)
-        print("File downloaded")
-
-
-
-driver.quit()
-
-print("ok")
-
-------------------------------------stable version----------------------------------------
-
-from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
-import requests
-import settings
-import time
-import os
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
-
-
-options = Options()
-options.headless = True
-driver = webdriver.Firefox(options=options)
-
-
-
-
-
-
-
-print("\n ******************************** STARTING ***************************************** \n")
-
-driver.get("http://www.cbs.dtu.dk/services/TCRpMHCmodels/index.php")
-
-print("headless chrome initialized")
-
-driver.find_element_by_link_text("Load Example").click()
-
-print("file opened")   
-
-modeller_key = driver.find_element_by_name("modellerkey")
-modeller_key.send_keys("MODELIRANJE")
-
-print("key entered")
-
-submit = driver.find_element_by_xpath("/html/body/div/div[2]/div[2]/div/form/div[4]/div/input")
-submit.click()
-print("switch to next page")
-print("wait for download")
-
-
-
-timeout = 300000000
-try:
-        element_present = EC.presence_of_element_located((By.CSS_SELECTOR, '#bs-example-navbar-collapse-1 > ul.nav.navbar-nav.navbar-right.example-label.download-btn > div > a'))
-        WebDriverWait(driver, timeout).until(element_present)
-           
-
-except TimeoutException:
-        print("Timed out waiting for page to load")
-        driver.get("http://google.com")
-else:
-        
-    links = driver.find_element_by_link_text('Download PDB File')
-    time.sleep(50)
-    url = links.get_attribute('href')
-
-    print(url)
-
-    r =requests.get(url)
-    path_to_file = settings.absolute_path_to_data_results + 'nini.pdb'
-    with open(path_to_file, 'wb') as my_file:
+        continue
+    else:
+        links = driver.find_element_by_link_text('Download PDB File')
+        time.sleep(50)
+        url = links.get_attribute('href')
+        r =requests.get(url)
+        path_to_file = settings.absolute_path_to_data_results + name
+
+        with open(path_to_file, 'wb') as my_file:
             my_file.write(r.content)
             print("File downloaded")
+        print("next file \n ")
 
-    print("ok")
-driver.quit()
+
+
+
+
+    
+
+
+
+
+
+
+
 
 
