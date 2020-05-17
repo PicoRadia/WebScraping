@@ -1,0 +1,15 @@
+from pydrive.drive import GoogleDrive
+from pydrive.auth import GoogleAuth
+
+gauth = GoogleAuth()
+drive = GoogleDrive(gauth)
+
+
+#upload a video
+def upload_file():
+    file_drive = drive.CreateFile({'title':'test.mp4'}) #here you put the filename
+    file_drive.SetContentFile('/home/radia/Bureau/test.mp4') #the path of the files
+    file_drive.Upload() #you upload the file
+    print('File ID: ' + file_drive.get('id')) #get the id
+
+upload_file()
