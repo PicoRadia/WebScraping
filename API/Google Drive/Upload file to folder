@@ -1,0 +1,30 @@
+from pydrive.drive import GoogleDrive
+from pydrive.auth import GoogleAuth
+
+gauth = GoogleAuth()
+drive = GoogleDrive(gauth)
+
+#Creating a folder
+def create_folder():
+    folder_metadata = {'title': 'MyFolder', 'mimeType': 'application/vnd.google-apps.folder'}
+    folder = drive.CreateFile(folder_metadata)
+    folder.Upload()
+    return folder['id']
+
+def upload_file_to_folder():
+    # Upload file to folder
+    file_metadata = {
+        'title': 'test.mp4',
+        'mimeType': 'video/mp4',
+        'parents': [{"kind": "drive#fileLink", "id": create_folder()}]
+    }
+    file_drive = drive.CreateFile(file_metadata)  # here you put the filename
+    file_drive.SetContentFile('/home/radia/Bureau/test.mp4')  # the name of the file
+    file_drive.Upload()
+
+
+if __name__== '__main__':
+   upload_file_to_folder()
+   print("done")
+
+
