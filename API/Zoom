@@ -1,0 +1,110 @@
+from selenium import webdriver
+import time
+import json
+import requests
+import pandas as pd
+
+def get_recordings():
+    response = requests.post('https://api.zoom.us/v1/recording/list',
+                             data={'api_key': 'ùùùùùùùùùùùùùùùù',
+                                   'api_secret': 'ùùùùùùùùùùùùùùùùù', 
+                                   'page_number': 1,
+                                   'page_size': 300, 'host_id': "ùùùùùù"})
+    if response.status_code == 200:
+        recordings = json.loads(response.content)
+        return recordings
+    else :
+        return None
+def get_number_of_recordings():
+    '''returns the number of meetings done in total'''
+    recordings = get_recordings()
+    return len(recordings['meetings'])
+def get_data_of_recording(number: int) -> object:
+    '''returns a list with details about each file'''
+    recordings=get_recordings()
+    return recordings['meetings'][number]['recording_files']
+    #example of the response
+    '''
+      "recording_files": [
+        {
+          "id": "string",
+          "meeting_id": "string",
+          "recording_start": "string",
+          "recording_end": "string",
+          "file_type": "string",
+          "file_size": "number",
+          "play_url": "string",
+          "download_url": "string",
+          "status": "string",
+          "recording_type": "string"
+        }'''
+def data_frame():
+    '''populating the dataFrame'''
+    #total = get_number_of_recordings()
+    #for i in range(total):
+    response = get_data_of_recording(5)
+    index=get_max_size_file(response,5)
+    data =[
+        response[index]['id'],
+        response[index]['recording_start'],
+        response[index]['download_url'],
+        None,
+        None,
+        None,
+    ]
+    df
+def get_max_size_file(data,number):
+    '''takes data_of_recording and number and returns the one with
+    download link'''
+    max = 0
+    total = len(get_data_of_recording(number))
+    for i in range(total):
+        type = get_data_of_recording(number)[i]['file_type']
+        file_size=get_data_of_recording(number)[i]['file_size']
+        if(type == 'MP4' and max<=file_size):
+            max=file_size
+    return i
+
+def temp(data,number):
+    list=[]
+    total = len(get_data_of_recording(number))
+    for i in range(total):
+        file_size = get_data_of_recording(number)[i]['file_size']
+        list.append(file_size)
+    print(max(list))
+
+#chromeDriver
+def chrome_driver():
+    '''initiates the chrome driver'''
+    driver = webdriver.Chrome()
+    link = "https://zoom.us/signin"
+    driver.get(link)
+    email = driver.find_element_by_id("email")
+    email.send_keys("rabbi@thevillageshul.org")
+    password = driver.find_element_by_id("password")
+    password.send_keys("Temp1012")
+    user_page = "https://us02web.zoom.us/meeting"
+    # TODO : Handle the event if user fails the robot test
+    while (driver.current_url != user_page):
+        time.sleep(2)
+        print(driver.current_url)
+    time.sleep(5)
+def download_video(url):
+    '''takes a url and downloads the recording'''
+    driver.get(url)
+# TODO
+def check_in_sys():
+    pass
+
+
+if __name__=='__main__':
+    data_frame()
+    #recordings = get_recordings()
+    #print(recordings['meetings'][0])
+    #data = get_data_of_recording(5)
+    #temp(data,5)
+    #index =get_max_size_file(data,5)
+    #print(get_data_of_recording(5))
+    #print(get_data_of_recording(5)[index])
+
+
