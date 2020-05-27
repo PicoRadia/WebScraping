@@ -1,13 +1,13 @@
 #	* * * * * * * * * * * * * * * * * * * * * * *
-#	*											*
-#	*	Scraping quotes with scrapy      		*
-#	*											*
-#	*				 By							*
-#	* 											*
-#	*			Fast   Dev						*
-#	*											*	
-#	*						May 26,2020			*
-#	*											*
+#	*					    *
+#	*	Scraping quotes with scrapy         *
+#	*					    *
+#	*		    By	                    *
+#	* 					    *
+#	*		Fast   Dev                  *
+#	*					    *	
+#	*			May 26,2020	    *
+#	*				            *
 #	* * * * * * * * * * * * * * * * * * * * * * *
 
 import scrapy
