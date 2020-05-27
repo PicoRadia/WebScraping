@@ -1,0 +1,45 @@
+#	* * * * * * * * * * * * * * * * * * * * * * *
+#	*					    *
+#	*	Scraping quotes with scrapy         *
+#	*					    *
+#	*         	MUTIPLE PAGES		    *
+#       *                                           *
+#	*		    By	                    *
+#	* 					    *
+#	*		Fast   Dev                  *
+#	*					    *	
+#	*			May 27,2020	    *
+#	*				            *
+#	* * * * * * * * * * * * * * * * * * * * * * *
+
+
+
+import scrapy 
+
+#handling pagination
+class Quotes(scrapy.Spider):
+	name = 'quotes'
+	start_urls = ['https://quotes.toscrape.com']
+
+	# save results in a different formats
+	custom_settings = { 
+		'FEED_FORMAT' : 'json',
+		'FEED_URI' : 'quotes.json'
+		# for json format 
+		# 'FEED_FORMAT' : 'json',
+		# 'FEED_URI' :  'quotes.json'
+	
+			}
+	
+	def parse(self,response) :
+		for elm in response.css('div.quote') :
+			 yield {
+					"quote" : elm.css('span.text::text').get(),
+					"author"  : elm.css('small.author::text').get()
+				}
+		
+		next_page = response.css('li.next a::attr("href")').get()
+		if next_page is not None :
+			base_url = "http://quotes.toscrape.com"
+			url = base_url + next_page
+			yield response.follow(url ,self.parse)
