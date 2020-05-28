@@ -1,0 +1,55 @@
+#	* * * * * * * * * * * * * * * * * * * * * * *
+#	*					    *
+#	*	Scraping quotes with scrapy         *
+#	*					    *
+#	*              Javascript website           *
+#       *                                           *
+#	*		     By                     *
+#	* 					    *
+#	*		Fast     Dev                *
+#	*					    *	
+#	*			 May 28,2020	    *
+#	*				            *
+#	* * * * * * * * * * * * * * * * * * * * * * *
+
+
+
+# import packages
+import scrapy 	
+from selenium import webdriver
+from scrapy_selenium import SeleniumRequest
+from scrapy.selector import Selector
+from selenium.webdriver.firefox.options import Options
+
+
+
+# spider class that inherites from scrapy.Spider
+
+
+
+class Quotes(scrapy.Spider):
+
+	# name of the spider
+	name = 'quote'
+	start_urls =["http://quotes.toscrape.com/js/"]
+	custom_settings = { 
+		'FEED_FORMAT' : 'json',
+		'FEED_URI' : 'pip.json'
+		# for csv format 
+	}
+	
+	# parse functions that yields the results
+	def parse(self,response):
+		options = Options()
+		options.headless = True
+		driver = webdriver.Firefox(options=options)
+		driver.get("http://quotes.toscrape.com/js/")	
+		response = Selector(text = driver.page_source)
+		# pythonic way
+		divs =text = response.css('div.quote').getall()	
+		for div in divs :
+			div = Selector(text=div)
+			yield {
+				'quote' : div.css('span.text::text').get(),
+				'author': div.css('small.author::text').get()
+				}
