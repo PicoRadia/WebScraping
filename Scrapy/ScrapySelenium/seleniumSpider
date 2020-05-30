@@ -8,48 +8,49 @@
 #	* 					    *
 #	*		Fast     Dev                *
 #	*					    *	
-#	*			 May 28,2020	    *
+#	*			 May 30,2020	    *
 #	*				            *
 #	* * * * * * * * * * * * * * * * * * * * * * *
 
 
 
-# import packages
-import scrapy 	
+import scrapy 
 from selenium import webdriver
-from scrapy_selenium import SeleniumRequest
 from scrapy.selector import Selector
 from selenium.webdriver.firefox.options import Options
 
 
-
-# spider class that inherites from scrapy.Spider
-
-
-
-class Quotes(scrapy.Spider):
-
-	# name of the spider
-	name = 'quote'
-	start_urls =["http://quotes.toscrape.com/js/"]
+class QuotesSpider(scrapy.Spider):
+	name = "quotes"
 	custom_settings = { 
 		'FEED_FORMAT' : 'json',
-		'FEED_URI' : 'pip.json'
+		'FEED_URI' : 'kiko.json'
 		# for csv format 
-	}
-	
-	# parse functions that yields the results
-	def parse(self,response):
+			}
+	start_urls= ["http://quotes.toscrape.com/js"]
+	def __init__(self):
+		scrapy.Spider.__init__(self)
 		options = Options()
 		options.headless = True
-		driver = webdriver.Firefox(options=options)
-		driver.get("http://quotes.toscrape.com/js/")	
-		response = Selector(text = driver.page_source)
+		self.driver = webdriver.Firefox(options=options)
+		self.log("Successfully, Started the Selenium Server!")
+
+	def parse(self, response):
+		self.logger.info("This url has been identified - " + response.url)
+		self.driver.get(response.url)
+		response = Selector(text = self.driver.page_source)
 		# pythonic way
-		divs =text = response.css('div.quote').getall()	
+		divs = response.css('div.quote').getall()	
 		for div in divs :
 			div = Selector(text=div)
 			yield {
 				'quote' : div.css('span.text::text').get(),
 				'author': div.css('small.author::text').get()
 				}
+
+		side_link = response.css('li.next > a::attr("href")').get()
+		base_link = 'http://quotes.toscrape.com'
+		link = base_link + side_link 
+		self.logger.info("next url to be crawled - %s" % link)
+		yield scrapy.Request(url=link, callback=self.parse, dont_filter=True)
+		}
