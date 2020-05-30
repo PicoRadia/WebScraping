@@ -1,0 +1,76 @@
+#	* * * * * * * * * * * * * * * * * * * * * * *
+#	*					    *
+#	*	Scraping quotes with scrapy         *
+#	*					    *
+#	*              Selenium Spider              *
+#       *                                           *
+#	*		     By                     *
+#	* 					    *
+#	*		Fast     Dev                *
+#	*					    *	
+#	*			 May 30,2020	    *
+#	*				            *
+#	* * * * * * * * * * * * * * * * * * * * * * *
+
+
+
+import scrapy 
+from selenium import webdriver
+from scrapy.selector import Selector
+from selenium.webdriver.firefox.options import Options
+import time
+
+
+class QuotesSpider(scrapy.Spider):
+	name = "quotes"
+	custom_settings = { 
+		'FEED_FORMAT' : 'json',
+		'FEED_URI' : 'final.json'
+		# for csv format 
+			}
+	start_urls= ["http://quotes.toscrape.com/"]
+	def __init__(self):
+		scrapy.Spider.__init__(self)
+		#headless
+		options = Options()
+		options.headless = False
+		self.driver = webdriver.Firefox(options=options)		
+		self.log("Successfully, Started the Selenium Server!")
+
+	def parse(self, response):
+		#self.logger.info("This url has been identified - " + response.url)
+		self.driver.get(response.url)
+		response = Selector(text = self.driver.page_source)
+		links = response.css('div.quote > span > a::attr("href")').getall()
+		for link in links :
+			if link is not None :
+				base_url = 'http://quotes.toscrape.com'
+				print(link)
+				url = base_url + link
+				yield scrapy.Request(url = url , callback = self.parse_author)
+		#pagination
+		side_link = response.css('li.next > a::attr("href")').get()
+		base_link = 'http://quotes.toscrape.com'
+		if side_link is not None :
+			link = base_link + side_link 
+			self.logger.info("next url to be crawled - %s" % link)
+			yield scrapy.Request(url=link, callback=self.parse,dont_filter=True)
+		
+	
+	def parse_author(self,response):
+		self.driver.get(response.url)
+		response = Selector(text = self.driver.page_source)
+		name = response.css('h3.author-title::text').get()
+		dob = response.css('span.author-born-date::text').get()
+		lob = response.css('span.author-born-location::text').get()
+		yield {
+			'name' : name,
+			'day of birth' : dob,
+			'location of birth ' : lob
+		}
+		
+
+		
+
+	
+		
