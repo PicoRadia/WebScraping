@@ -1,0 +1,30 @@
+import requests
+from bs4 import BeautifulSoup 
+import json
+import re
+
+# HTTP Get Request 
+rep = requests.get("https://s.1688.com/selloffer/offer_search.htm?keywords=nivea&n=y&netType=1%2C11&encode=utf-8&spm=a260k.dacugeneral.search.0")
+# parsing the document 
+
+content = BeautifulSoup(rep.text,'lxml')
+#print(content)
+
+# extract scripts
+scripts = '\n'.join([script.text for script in content.find_all('script')])
+#print(scripts)
+
+# define regex match patterns
+match_scripts = re.findall(r'(window.data.offerresultData)(=)(.*)' ,scripts)
+urls = []
+variables =[]
+for variable in match_scripts:
+    matchs=re.findall(r'("detailUrl")(:)(".*?\.html")',variable[2])
+for m in matchs:
+    khi = m[2].replace('\\','') 
+    urls.append(khi)
+    
+
+print(urls)
+
+
