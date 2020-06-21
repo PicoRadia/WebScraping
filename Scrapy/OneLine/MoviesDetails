@@ -1,0 +1,36 @@
+# crawler in one line 
+
+import json ; l=[];
+
+[
+	(fetch('https://m.hindigeetmala.net/movie/1960.php?page=' +str(page)),
+	[l.append('https://m.hindigeetmala.net' +str(r.css('a::attr(href)').get())) for r in response.css('div.thumbnail') ]
+)for  page in range(1,14)
+];
+[(fetch(l[index]),
+open('movies1960.json','a').write((json.dumps(
+{
+	'Thumb(Image)' : response.css('body > div > div:nth-child(2) > div:nth-child(3) > table > tbody > tr > td:nth-child(1) > a > img::attr(src) ').get(),
+
+	'Song Heading' : response.css('body > div > div:nth-child(2) > div:nth-child(3) > table > tbody > tr > td:nth-child(2) > a > span::text').get() ,
+
+	'Singer'   	   : response.css('body > div > div:nth-child(2) > div:nth-child(3) > table > tbody > tr > td:nth-child(3) > span > a > span::text').get(),
+
+ 
+	'composer'     : response.css('body > div > div:nth-child(2) > div:nth-child(3) > table > tbody > tr > td:nth-child(4) > span  > a > span::text').get(),
+
+	'Lyricist'     : response.css('body > div > div:nth-child(2) > div:nth-child(3) > table > tbody > tr > td:nth-child(5) > span  > a > span::text').get(),
+
+	'Actor'        : response.css('body > div > div:nth-child(2) > div:nth-child(3) > table > tbody > tr > td:nth-child(6)>a::text ').get(),
+
+'Film(Year)'   :
+response.css('body > div > div:nth-child(2) > div:nth-child(3) > table > tbody > tr > td:nth-child(7)> span > a > span::text').get() +
+ response.css('body > div > div:nth-child(2) > div:nth-child(3) > table > tbody > tr > td:nth-child(7)> span > a::text ').get(),
+
+	'Category'     : response.css('body > div > div:nth-child(2) > div:nth-child(3) > table > tbody > tr > td:nth-child(8) > a > span::text ').get(),
+	
+},
+indent = 2,
+ensure_ascii=False
+)))) for index in range(len(l))]
+
