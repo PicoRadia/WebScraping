@@ -1,0 +1,15 @@
+import json;
+[(fetch('http://quotes.toscrape.com/page/' + str(page)),# fetch html and parse it
+[
+	open('ok.json','a').write(  
+		json.dumps(
+				{
+					'author' : r.css('small.author::text').get(),
+					'quote' : r.css('span.text::text').get().strip('”').strip('“')
+				},
+				ensure_ascii=False, #UTF-8
+				indent = 4 ) + '\n')
+for r in response.css('div.quote')
+
+])
+for page in range(1,10)]
